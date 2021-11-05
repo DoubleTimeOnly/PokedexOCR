@@ -1,19 +1,25 @@
 import cv2
 from screencap.Screen import Screen
 from utils import logger
+from patternmatching import sift
 
 
 log = logger.get_logger(__name__)
 log.setLevel(logger.DEBUG)
 
+STRATEGIES = {
+    "sift": sift.SIFTMatcher,
+}
 
 class PatternMatcher:
-    def __init__(self, screen_dimensions: tuple):
+    def __init__(self, screen_dimensions: tuple, strategy: str="sift"):
         '''
         :param screen_dimensions: (tuple / list) cornerX, cornerY, width, height
+        :param strategy: (string) the pattern matching algorithm to use
         '''
         self.screen = Screen(*screen_dimensions)
         self.pattern = None
+        self.strategy = STRATEGIES[strategy.lower()]()
 
     def find_pattern(self, num_matches=1):
         matched_patterns = []
