@@ -12,17 +12,19 @@ STRATEGIES = {
 }
 
 class PatternMatcher:
-    def __init__(self, screen_dimensions: tuple, strategy: str="sift"):
+    def __init__(self, strategy: str="sift"):
         '''
         :param screen_dimensions: (tuple / list) cornerX, cornerY, width, height
         :param strategy: (string) the pattern matching algorithm to use
         '''
-        self.screen = Screen(*screen_dimensions)
         self.pattern = None
         self.strategy = STRATEGIES[strategy.lower()]()
 
-    def find_pattern(self, num_matches=1):
+    def find_pattern(self, query, num_matches=1):
         matched_patterns = []
+        if self.pattern is None:
+            raise ValueError("Pattern is None. Likely because it has not been loaded yet.")
+        self.strategy.find_matches(query, self.pattern)
         return matched_patterns
 
     def load_pattern(self, path_to_pattern):
@@ -37,10 +39,12 @@ class PatternMatcher:
 
 if __name__ == "__main__":
     screen_dims = (0, 0, 2560, 1440)
-    patmatch = PatternMatcher(screen_dims)
+    screen = Screen(*screen_dims)
+    patmatch = PatternMatcher()
     if log.level <= logger.DEBUG_WITH_IMAGES:
-        patmatch.screen.showScreen(scale=0.5)
+        screen.showScreen(scale=0.5)
     patmatch.load_pattern(r"C:\Users\Victor\Documents\OCRPokedex\patterns\HP.PNG")
-    locations = patmatch.find_pattern()
+    screen.updateScreen()
+    locations = patmatch.find_pattern(screen.getScreen())
     print(locations)
     assert len(locations) == 2
