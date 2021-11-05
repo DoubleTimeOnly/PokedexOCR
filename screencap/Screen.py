@@ -17,10 +17,14 @@ class Screen:
     def getScreen(self):
         return self.screen
     
-    def showScreen(self, duration=0):
+    def showScreen(self, scale=1, duration=0):
         if self.screen is None:
             self.updateScreen()
-        cv2.imshow('screen', self.screen)
+
+        display = self.screen
+        if scale != 1:
+            display = cv2.resize(self.screen, (0, 0), fx=scale, fy=scale)
+        cv2.imshow('screen', display)
         cv2.waitKey(duration)
         
     def __str__(self):
