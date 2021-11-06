@@ -2,7 +2,7 @@ from patternmatching import matcher
 from utils import logger
 import cv2
 import numpy as np
-from patternmatching.clusterer import KMedoids_Clusterer
+from patternmatching.clusterer import *
 
 
 log = logger.get_logger(__name__)
@@ -12,8 +12,8 @@ log.setLevel(logger.DEBUG)
 class SIFTMatcher(matcher.Matcher):
     def __init__(self):
         super().__init__()
-        self.sift = cv2.SIFT_create(nOctaveLayers=1, sigma=2)
-        self.clusterer = KMedoids_Clusterer()
+        self.sift = cv2.SIFT_create(nOctaveLayers=1, sigma=3)
+        self.clusterer = DBSCAN_Clusterer()
 
     def find_matches(self, query, pattern, n_matches=1):
         if query is None or pattern is None:
@@ -35,7 +35,7 @@ class SIFTMatcher(matcher.Matcher):
             scale = 0.6
             canvas = cv2.resize(canvas, (0, 0), fx=scale, fy=scale)
             cv2.imshow("keypoint matches", canvas)
-            cv2.waitKey(0)
+            cv2.waitKey(1)
         return cluster_centers
 
     def match_descriptors(self, query_descriptors, pattern_descriptors):
