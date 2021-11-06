@@ -18,6 +18,7 @@ class Clusterer:
             self.centers = self.clusterer.cluster_centers_
             self.labels = self.clusterer.labels_
         except ValueError:
+            self.fit_data = data
             self.centers = []
             self.labels = []
 
@@ -55,22 +56,28 @@ class KMeans_Clusterer(Clusterer):
 class DBSCAN_Clusterer(Clusterer):
     def fit(self, data, n_clusters=1, init=None):
         self.clusterer = DBSCAN(eps=100, n_jobs=-1)
-        self.clusterer.fit(data )
+        try:
+            self.clusterer.fit(data)
 
-        labels = self.clusterer.labels_
-        n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
-        n_noise = list(labels).count(-1)
+            labels = self.clusterer.labels_
+            n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+            n_noise = list(labels).count(-1)
 
-        clean_data = []
-        for label, point in zip(labels, data):
-            if label != -1:
-                clean_data.append(point)
+            clean_data = []
+            for label, point in zip(labels, data):
+                if label != -1:
+                    clean_data.append(point)
 
-        actual_clusterer = KMeans_Clusterer()
-        actual_clusterer.fit(clean_data, n_clusters=n_clusters)
-        self.fit_data = data
-        self.labels = actual_clusterer.labels
-        self.centers = actual_clusterer.centers
+            actual_clusterer = KMeans_Clusterer()
+            actual_clusterer.fit(clean_data, n_clusters=n_clusters)
+            self.fit_data = data
+            self.labels = actual_clusterer.labels
+            self.centers = actual_clusterer.centers
+
+        except (ValueError, AttributeError):
+            self.fit_data = data
+            self.centers = []
+            self.labels = []
 
 
 
