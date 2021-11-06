@@ -21,10 +21,9 @@ class PatternMatcher:
         self.strategy = STRATEGIES[strategy.lower()]()
 
     def find_pattern(self, query, n_matches=1):
-        matched_patterns = []
         if self.pattern is None:
             raise ValueError("Pattern is None. Likely because it has not been loaded yet.")
-        self.strategy.find_matches(query, self.pattern, n_matches=n_matches)
+        matched_patterns = self.strategy.find_matches(query, self.pattern, n_matches=n_matches)
         return matched_patterns
 
     def load_pattern(self, path_to_pattern):

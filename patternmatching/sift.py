@@ -5,9 +5,8 @@ import numpy as np
 from patternmatching.clusterer import KMedoids_Clusterer
 
 
-
 log = logger.get_logger(__name__)
-log.setLevel(logger.DEBUG_WITH_IMAGES)
+log.setLevel(logger.DEBUG)
 
 
 class SIFTMatcher(matcher.Matcher):
@@ -31,7 +30,6 @@ class SIFTMatcher(matcher.Matcher):
 
         if log.level <= logger.DEBUG_WITH_IMAGES:
             canvas = query.copy()
-            # self.draw_keypoint_matches(matches_mask, query, query_keypoints, pattern, pattern_keypoints, descriptor_matches)
             self.clusterer.draw_clusters(canvas)
             self.clusterer.draw_cluster_centers(canvas)
             scale = 0.6
