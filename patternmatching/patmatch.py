@@ -20,11 +20,11 @@ class PatternMatcher:
         self.pattern = None
         self.strategy = STRATEGIES[strategy.lower()]()
 
-    def find_pattern(self, query, num_matches=1):
+    def find_pattern(self, query, n_matches=1):
         matched_patterns = []
         if self.pattern is None:
             raise ValueError("Pattern is None. Likely because it has not been loaded yet.")
-        self.strategy.find_matches(query, self.pattern)
+        self.strategy.find_matches(query, self.pattern, n_matches=n_matches)
         return matched_patterns
 
     def load_pattern(self, path_to_pattern):
@@ -45,6 +45,6 @@ if __name__ == "__main__":
         screen.showScreen(scale=0.5)
     patmatch.load_pattern(r"C:\Users\Victor\Documents\OCRPokedex\patterns\HP.PNG")
     screen.updateScreen()
-    locations = patmatch.find_pattern(screen.getScreen())
+    locations = patmatch.find_pattern(screen.getScreen(), n_matches=2)
     print(locations)
     assert len(locations) == 2

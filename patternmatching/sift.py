@@ -2,7 +2,7 @@ from patternmatching import matcher
 from utils import logger
 import cv2
 import numpy as np
-from sklearn.cluster import MeanShift, estimate_bandwidth
+from patternmatching.clusterer import KMedoids_Clusterer
 
 
 
@@ -14,8 +14,9 @@ class SIFTMatcher(matcher.Matcher):
     def __init__(self):
         super().__init__()
         self.sift = cv2.SIFT_create(nOctaveLayers=1, sigma=2)
+        self.clusterer = KMedoids_Clusterer()
 
-    def find_matches(self, query, pattern):
+    def find_matches(self, query, pattern, n_matches=1):
         if query is None or pattern is None:
             raise ValueError(f"One of query or pattern is None. Query: {type(query)}. Pattern: {type(pattern)}.")
         # pattern = cv2.resize(pattern, (0, 0), fx=4, fy=4)
@@ -24,42 +25,20 @@ class SIFTMatcher(matcher.Matcher):
         query_keypoints, query_descriptors = outputs[0]
         pattern_keypoints, pattern_descriptors = outputs[1]
 
-        x = np.array([pattern_keypoints[0].pt])
+        good_matches, matches_mask, descriptor_matches = self.match_descriptors(query_descriptors, pattern_descriptors)
 
-        for i in range(len(pattern_keypoints)):
-            x = np.append(x, [pattern_keypoints[i].pt], axis=0)
+        cluster_centers, cluster_labels = self.cluster_keypoints(query_keypoints, good_matches, n_clusters=n_matches)
 
-        x = x[1:len(x)]
-
-        bandwidth = estimate_bandwidth(x, quantile=0.5)
-
-        ms = MeanShift(bandwidth=bandwidth, bin_seeding=False, cluster_all=True)
-        ms.fit(x)
-        labels = ms.labels_
-        cluster_centers = ms.cluster_centers_
-
-        labels_unique = np.unique(labels)
-        n_clusters_ = len(labels_unique)
-        print(f"number of estimated clusters: {n_clusters_}")
-        s = [None] * n_clusters_
-        for i in range(n_clusters_):
-            l = ms.labels_
-            d, = np.where(l == i)
-            print(d.__len__())
-            s[i] = list(pattern_keypoints[xx] for xx in d)
-
-        pattern_descriptors_ = pattern_descriptors
-
-        for i in range(n_clusters_):
-            pattern_keypoints2 = s[i]
-            l = ms.labels_
-            d, = np.where(l == i)
-            pattern_descriptors = pattern_descriptors_[d, ]
-
-            good_matches, matches_mask, descriptor_matches = self.match_descriptors(query_descriptors, pattern_descriptors)
-
-            if log.level <= logger.DEBUG_WITH_IMAGES:
-                self.draw_keypoint_matches(matches_mask, query, query_keypoints, pattern, pattern_keypoints, descriptor_matches)
+        if log.level <= logger.DEBUG_WITH_IMAGES:
+            canvas = query.copy()
+            # self.draw_keypoint_matches(matches_mask, query, query_keypoints, pattern, pattern_keypoints, descriptor_matches)
+            self.clusterer.draw_clusters(canvas)
+            self.clusterer.draw_cluster_centers(canvas)
+            scale = 0.6
+            canvas = cv2.resize(canvas, (0, 0), fx=scale, fy=scale)
+            cv2.imshow("keypoint matches", canvas)
+            cv2.waitKey(0)
+        return cluster_centers
 
     def match_descriptors(self, query_descriptors, pattern_descriptors):
         FLANN_INDEX_KDTREE = 0
@@ -91,16 +70,18 @@ class SIFTMatcher(matcher.Matcher):
         ]
         return outputs
 
+    def cluster_keypoints(self, query_keypoints, good_matches, n_clusters=1):
+        query_keypoint_matches = np.array([query_keypoints[match.queryIdx].pt for match in good_matches])
+        self.clusterer.fit(query_keypoint_matches, n_clusters=n_clusters)
+        return self.clusterer.centers, self.clusterer.labels
+
     @staticmethod
     def draw_keypoint_matches(matches_mask, query, query_keypoints, pattern, pattern_keypoints, descriptor_matches):
         draw_params = dict(matchColor=(0, 255, 0),
                            singlePointColor=(255, 0, 0),
                            matchesMask=matches_mask,
                            flags=0)
-        img3 = cv2.drawMatchesKnn(query, query_keypoints, pattern, pattern_keypoints, descriptor_matches, None,
-                                  **draw_params)
-        img3 = cv2.resize(img3, (0, 0), fx=0.5, fy=0.5)
-        cv2.imshow("keypoint matches", img3)
-        cv2.waitKey(0)
+        canvas = cv2.drawMatchesKnn(query, query_keypoints, pattern, pattern_keypoints, descriptor_matches, None, **draw_params)
+        return canvas
 
 
