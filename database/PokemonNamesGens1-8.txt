@@ -882,7 +882,8 @@ yanma
 yanmega
 yungoos
 yveltal
-zacian
+zacian-hero
+zacian-crowned
 zamazenta
 zangoose
 zapdos
