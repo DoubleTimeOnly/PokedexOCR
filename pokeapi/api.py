@@ -4,6 +4,7 @@ import pokebase
 class Pokemon:
     def __init__(self, name):
         self.pokemon = pokebase.pokemon(name)
+        self.name = name if len(name) > 0 else "Unidentified Pokemon"
         self.is_fakemon = False
         if self.pokemon.id_ is None:
             self.is_fakemon = True
@@ -67,7 +68,7 @@ class Pokemon:
         return output
 
     def __str__(self):
-        output = f"{self.pokemon.name}:"
+        output = f"{self.name}:"
         output += f"\n\ttypes: {self.get_types()}"
         output += "\n" + self.get_formatted_damage_relations()
         return output

@@ -25,7 +25,9 @@ class Clusterer:
     def draw_clusters(self, canvas):
         colors = {}
         for label, point in zip(self.labels, self.fit_data):
-            if label not in colors:
+            if label == -1:
+                color = [0, 0, 0]
+            elif label not in colors:
                 color = (np.random.random(3) * 255).astype(int).tolist()
                 colors[label] = color
             canvas = cv2.circle(canvas, (int(point[0]), int(point[1])), radius=5, color=colors[label], thickness=-1)
@@ -60,8 +62,6 @@ class DBSCAN_Clusterer(Clusterer):
             self.clusterer.fit(data)
 
             labels = self.clusterer.labels_
-            n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
-            n_noise = list(labels).count(-1)
 
             clean_data = []
             for label, point in zip(labels, data):
