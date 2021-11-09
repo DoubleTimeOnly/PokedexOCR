@@ -5,19 +5,19 @@ from patternmatching import sift
 
 
 log = logger.get_logger(__name__)
-log.setLevel(logger.DEBUG)
+log.setLevel(logger.INFO)
 
 STRATEGIES = {
     "sift": sift.SIFTMatcher,
 }
 
 class PatternMatcher:
-    def __init__(self, strategy: str="sift"):
+    def __init__(self, path_to_pattern, strategy: str= "sift"):
         '''
         :param screen_dimensions: (tuple / list) cornerX, cornerY, width, height
         :param strategy: (string) the pattern matching algorithm to use
         '''
-        self.pattern = None
+        self.load_pattern(path_to_pattern)
         self.strategy = STRATEGIES[strategy.lower()]()
 
     def find_pattern(self, query, n_matches=1):
@@ -37,13 +37,16 @@ class PatternMatcher:
 
 
 if __name__ == "__main__":
+    log.setLevel(logger.DEBUG)
+    sift.log.setLevel(logger.DEBUG_WITH_IMAGES)
     screen_dims = (0, 0, 2560, 1440)
     screen = Screen(*screen_dims)
-    patmatch = PatternMatcher()
+    path_to_pattern = r"C:\Users\Victor\Documents\OCRPokedex\patterns\pokemonswitchin.png"
+    patmatch = PatternMatcher(path_to_pattern)
     if log.level <= logger.DEBUG_WITH_IMAGES:
         screen.showScreen(scale=0.5)
-    patmatch.load_pattern(r"C:\Users\Victor\Documents\OCRPokedex\patterns\HP.PNG")
+    # patmatch.load_pattern(r"C:\Users\Victor\Documents\OCRPokedex\patterns\pokemonswitchin.png")
     screen.updateScreen()
-    locations = patmatch.find_pattern(screen.getScreen(), n_matches=2)
+    locations = patmatch.find_pattern(screen.getScreen(), n_matches=1)
     print(locations)
-    assert len(locations) == 2
+    cv2.waitKey(0)
