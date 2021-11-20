@@ -24,17 +24,22 @@ class PokeDex:
 
         switchin_pattern = r"C:\Users\Victor\Documents\OCRPokedex\patterns\pokemonswitchin.png"
         switchinPokemonMatcher = PatternMatcher(switchin_pattern)
+        switchin_input_roi = ROI(0, (1 - (129 / 1440) - 0.05) * self.screen.height,
+                                 self.screen.width, 129 / 1440 * self.screen.height)
         switchin_roi = ROI(0, 0, 0.25 * self.screen.width, 0.07 * self.screen.height,
-                           offsetX=0.1*self.screen.width, offsetY=-0.025*self.screen.height)
+                           offsetX=0.115*self.screen.width, offsetY=-0.035*self.screen.height)
         switchin_matcher = GetFixturedROI(switchinPokemonMatcher, switchin_roi, n_matches=1,
-                                      name_reader=self.name_reader)
+                                          name_reader=self.name_reader, input_roi=switchin_input_roi,
+                                          name="switchin")
 
         hp_pattern = r"C:\Users\Victor\Documents\OCRPokedex\patterns\HP.PNG"
         activePokemonMatcher = PatternMatcher(hp_pattern)
+        hp_input_roi = ROI(0, 0, self.screen.width, (1007/1440)*self.screen.height)
         hp_roi = ROI(0, 0, 0.2 * self.screen.width, 0.07 * self.screen.height,
                          offsetX=-0.08*self.screen.width, offsetY=-0.09*self.screen.height)
         active_matcher = GetFixturedROI(activePokemonMatcher, hp_roi, n_matches=2,
-                                        name_reader=self.name_reader)
+                                        name_reader=self.name_reader, input_roi=hp_input_roi,
+                                        name="active")
 
         self.matcher = None
         for action in [switchin_matcher, active_matcher][::-1]:

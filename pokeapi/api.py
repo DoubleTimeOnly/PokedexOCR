@@ -9,7 +9,6 @@ class Pokemon:
         if self.pokemon.id_ is None:
             self.is_fakemon = True
 
-
     def get_types(self):
         types = []
         if not self.is_fakemon:

@@ -18,8 +18,6 @@ class SIFTMatcher(matcher.Matcher):
     def find_matches(self, query, pattern, n_matches=1):
         if query is None or pattern is None:
             raise ValueError(f"One of query or pattern is None. Query: {type(query)}. Pattern: {type(pattern)}.")
-        # pattern = cv2.resize(pattern, (0, 0), fx=4, fy=4)
-        # query = cv2.resize(query, (0, 0), fx=4, fy=4)
         outputs = self.detect_keypoints_and_descriptors(query, pattern)
         query_keypoints, query_descriptors = outputs[0]
         pattern_keypoints, pattern_descriptors = outputs[1]

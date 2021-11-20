@@ -37,16 +37,20 @@ class PatternMatcher:
 
 
 if __name__ == "__main__":
+    from roi.roi import ROI
     log.setLevel(logger.DEBUG)
     sift.log.setLevel(logger.DEBUG_WITH_IMAGES)
     screen_dims = (0, 0, 2560, 1440)
     screen = Screen(*screen_dims)
     path_to_pattern = r"C:\Users\Victor\Documents\OCRPokedex\patterns\pokemonswitchin.png"
+    # path_to_pattern = r"C:\Users\Victor\Documents\OCRPokedex\patterns\HP.PNG"
     patmatch = PatternMatcher(path_to_pattern)
     if log.level <= logger.DEBUG_WITH_IMAGES:
         screen.showScreen(scale=0.5)
-    # patmatch.load_pattern(r"C:\Users\Victor\Documents\OCRPokedex\patterns\pokemonswitchin.png")
     screen.updateScreen()
-    locations = patmatch.find_pattern(screen.getScreen(), n_matches=1)
+    switchin_input_roi = ROI(0, (1 -  (129 / 1440) - 0.05) * screen.height,
+                             screen.width, 129 / 1440 * screen.height)
+    hp_input_roi = ROI(0, 0, screen.width, (1007 / 1440) * screen.height)
+    locations = patmatch.find_pattern(switchin_input_roi.getROI(screen.getScreen()), n_matches=1)
     print(locations)
     cv2.waitKey(0)

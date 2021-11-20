@@ -5,7 +5,7 @@ import os
 import cv2
 
 log = logger.get_logger(__name__)
-log.setLevel(logger.INFO)
+log.setLevel(logger.DEBUG)
 
 LOWERCASE_ALPHABET = 'abcdefghijklmnopqrstuvwxyz'
 
@@ -35,6 +35,8 @@ class FireRedNameReader:
         return name_index
 
     def read_pokemon_name(self, query_image, binarize=False):
+        if query_image is None or not all(query_image.shape):
+            return ""
         if binarize:
             query_image = binarizeImage(query_image, threshold=100)
 
